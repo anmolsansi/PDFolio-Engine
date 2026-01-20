@@ -6,11 +6,13 @@ __pycache__/
 .mypy_cache/
 .venv/
 .env
+.DS_Store
 
 # Local-only data and config
 local_config.yaml
 prompts/
 data/
+**/.DS_Store
 HTML Files/
 pdf/
 
