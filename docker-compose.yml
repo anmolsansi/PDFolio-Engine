@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ${HOST_DATA_ROOT:-/tmp/html_pdf_kb}:/data
+    environment:
+      - DATA_ROOT=/data

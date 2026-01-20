@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDFolio Engine</title>
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --ink: #1f1f1f;
+        --accent: #2a5c6b;
+        --card: #ffffff;
+      }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #ffffff, var(--bg));
+        color: var(--ink);
+      }
+      header {
+        padding: 32px 20px 12px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 32px;
+        letter-spacing: 0.5px;
+      }
+      .sub {
+        color: #4a4a4a;
+        font-size: 14px;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .search-bar {
+        display: flex;
+        gap: 10px;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d4d1c8;
+        font-size: 16px;
+      }
+      button {
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+        font-size: 15px;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .results {
+        margin-top: 20px;
+        display: grid;
+        gap: 12px;
+      }
+      .card {
+        background: var(--card);
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #e3e0d8;
+      }
+      .path {
+        font-size: 12px;
+        color: #666;
+        overflow-wrap: anywhere;
+      }
+      .snippet {
+        margin: 8px 0;
+        color: #333;
+        font-size: 14px;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      @media (max-width: 600px) {
+        .search-bar {
+          flex-direction: column;
+        }
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>PDFolio Engine</h1>
+      <div class="sub">Local HTML → PDF vault with instant search</div>
+    </header>
+    <div class="container">
+      <div class="search-bar">
+        <input id="query" type="text" placeholder='Try: "emulsifying capacity" or emulsan*' />
+        <button id="searchBtn">Search</button>
+      </div>
+      <div id="status" class="sub" style="margin-top: 10px;"></div>
+      <div id="results" class="results"></div>
+    </div>
+
+    <script>
+      const queryInput = document.getElementById("query");
+      const searchBtn = document.getElementById("searchBtn");
+      const resultsEl = document.getElementById("results");
+      const statusEl = document.getElementById("status");
+
+      async function runSearch() {
+        const q = queryInput.value.trim();
+        if (!q) return;
+        searchBtn.disabled = true;
+        statusEl.textContent = "Searching...";
+        resultsEl.innerHTML = "";
+
+        try {
+          const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+          const data = await res.json();
+          statusEl.textContent = `${data.results.length} results`;
+
+          data.results.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <div class="path">${item.html_path}</div>
+              <div class="snippet">${item.snippet || "(no snippet)"}</div>
+              <div class="meta">
+                <span class="path">score: ${item.score.toFixed(2)}</span>
+                <a href="/download?doc_id=${item.doc_id}">Download PDF</a>
+              </div>
+            `;
+            resultsEl.appendChild(card);
+          });
+        } catch (err) {
+          statusEl.textContent = "Search failed";
+        } finally {
+          searchBtn.disabled = false;
+        }
+      }
+
+      searchBtn.addEventListener("click", runSearch);
+      queryInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") runSearch();
+      });
+    </script>
+  </body>
+</html>

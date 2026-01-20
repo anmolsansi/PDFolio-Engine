@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.venv/
+.env
+
+# Local-only data and config
+local_config.yaml
+prompts/
+data/
+HTML Files/
+pdf/
+
+
+# Playwright
+.playwright/
+local_config.example.yaml
+index/kb.sqlite
+index/kb.sqlite-shm
+index/kb.sqlite-wal
